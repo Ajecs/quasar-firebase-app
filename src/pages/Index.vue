@@ -27,28 +27,36 @@
 </template>
 
 <script>
+import { db } from 'boot/firebase'
 export default {
   data() {
     return {
       editor: "",
-      tasks: [
-       /*  {
-          text: "Tarea #1",
-          state: false
-        },
-        {
-          text: "Tarea #2",
-          state: true
-        },
-        {
-          text: "Tarea #3",
-          state: false
-        } */
-      ]
+      tasks: []
     };
   },
+  created() {
+    this.listTasks()
+  },
   methods: {
-    saveWork() {
+    async listTasks() {
+      try {
+        const resDB = await db.collection('tasks').get()
+
+        resDB.forEach(res => {
+          console.log(res.id)
+          const task = {
+            id: res.id,
+            text: res.data().text,
+            state: res.data().state,
+          }
+          this.tasks.push(task)
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async saveWork() {
       this.tasks.push({
         text: this.editor,
         state: false
